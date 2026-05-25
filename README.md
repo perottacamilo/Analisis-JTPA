@@ -1,1 +1,0 @@
-# TP2-Econoemtria-I-JTPA
