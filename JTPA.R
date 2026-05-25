@@ -10,7 +10,7 @@ library(broom)        # Convierte resultados de modelos en data frames ordenados
 library(sandwich)     # Genera errores estandar
 library(lmtest)       # Sirve para tests estadísticos para modelos lineales (heter., autocorr., etc.).
 library(modelsummary) # Formatos más visibles de regresiones
-
+holahola
 #Clase 1
 library(AER)
 library(lmtest)
