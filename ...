@@ -18,12 +18,12 @@ library(lmtest)
 
 rm(list = ls())
 
-  setwd("D:/Users/Camilo/Documents/.-Camilo-/UBA/Econometria I/TPs") 
+setwd("D:/Users/Camilo/Documents/.-Camilo-/UBA/Econometria I/TPs") 
 jtpa_tp <- read_dta("jtpa.dta")
 
 jtpa_tp <- jtpa_tp %>% 
   mutate(ingreso = as.numeric(earnings), secund_compl = as.numeric(hsorged))
-  
+
 jtpa_2 <- jtpa_tp %>% 
   filter(ingreso > 0) %>% 
   mutate(log_ingreso = log(ingreso))
@@ -53,7 +53,7 @@ summary(ejercicio1.1)
 # con haber participado en la capacitación
 
 ejercicio2 <- lm(log_ingreso ~ jtpa_training + sex + jtpa_training*sex + secund_compl + black 
-+ hispanic + married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_2)
+                 + hispanic + married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_2)
 summary(ejercicio2)
 
 linearHypothesis(ejercicio2, "jtpa_training:sex = 0")
@@ -128,7 +128,7 @@ summary(relevancia)
 
 #Forma reducida
 forma_red <- lm(log_ingreso ~ jtpa_offer + secund_compl + black + hispanic + 
-married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_2)
+                  married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_2)
 summary(forma_red)
 alfa <- forma_red$coefficients["jtpa_offer"]
 
@@ -141,7 +141,7 @@ primera_etapa <- lm(jtpa_training ~ jtpa_offer + married + black + hispanic + se
 summary(primera_etapa)
 
 gamma <- primera_etapa$coefficients["jtpa_offer"]
- print(gamma)
+print(gamma)
 
 alfa/gamma 
 
@@ -152,7 +152,7 @@ ivreg(log_ingreso ~ jtpa_training + secund_compl + black + hispanic +
         married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
         jtpa_offer + secund_compl + black + hispanic + 
         married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_2)
- 
+
 
 #Separando por sexos
 
@@ -183,14 +183,14 @@ summary(ejercicio1.1m)
 #Punto 2
 #Hombres
 ejercicio2h <- lm(log_ingreso ~ jtpa_training + sex + jtpa_training*sex + secund_compl + black 
-                 + hispanic + married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_hombres)
+                  + hispanic + married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_hombres)
 summary(ejercicio2h)
 
 linearHypothesis(ejercicio2h, "jtpa_training:sex = 0")
 
 #Mujeres
 ejercicio2m <- lm(log_ingreso ~ jtpa_training + sex + jtpa_training*sex + secund_compl + black 
-                 + hispanic + married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_mujeres)
+                  + hispanic + married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_mujeres)
 summary(ejercicio2m)
 
 linearHypothesis(ejercicio2, "jtpa_training:sex = 0")
@@ -223,6 +223,25 @@ ivreg(log_ingreso ~ jtpa_training + secund_compl + black + hispanic +
         married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
         jtpa_offer + secund_compl + black + hispanic + 
         married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_hombres)
+
+jtpa_3 <- jtpa_tp %>% 
+  filter(sex == 1)
+
+
+#Usando ingreso en dolares (Como utiliza el paper)
+ivreg(ingreso ~ jtpa_training + secund_compl + black + hispanic + 
+        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
+        jtpa_offer + secund_compl + black + hispanic + 
+        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_hombres)
+
+#Incluye personas con ingreso=0 (Mas parecido al paper)
+ivreg(ingreso ~ jtpa_training + secund_compl + black + hispanic + 
+        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
+        jtpa_offer + secund_compl + black + hispanic + 
+        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_3)
+
+
+
 
 
 #Mujeres
