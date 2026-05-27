@@ -40,9 +40,32 @@ jtpa_2 <- jtpa_tp %>%
 ejercicio1 <- lm(ingreso ~ jtpa_training, data = jtpa_2)
 summary(ejercicio1)
 
+#Tabla para el ejercicio 1
+modelsummary(
+  list("Coef" = ejercicio1),
+  title = "Tabla 1: Regresion controlando por entrenamiento",
+  stars     = TRUE,
+  statistic = "std.error",
+  fmt       = 3,
+  coef_rename = c(
+    "jtpa_training" = "Recibio entrenamiento"),
+  gof_map = c("nobs", "adj.r.squared"))
+
+
 #Modelo Log-Lin
 ejercicio1.1 <- lm(log_ingreso ~ jtpa_training, data = jtpa_2)
 summary(ejercicio1.1)
+
+#Tabla para el ejercicio 1
+modelsummary(
+  list("Coef" = ejercicio1.1),
+  title = "Tabla 2: Regresion controlando por entrenamiento con ingreso en logaritmos",
+  stars     = TRUE,
+  statistic = "std.error",
+  fmt       = 3,
+  coef_rename = c(
+    "jtpa_training" = "Recibio entrenamiento"),
+  gof_map = c("nobs", "adj.r.squared"))
 
 
 #Punto 2
@@ -57,6 +80,29 @@ ejercicio2 <- lm(log_ingreso ~ jtpa_training + sex + jtpa_training*sex + secund_
 summary(ejercicio2)
 
 linearHypothesis(ejercicio2, "jtpa_training:sex = 0")
+
+#Tabla para el ejercicio 2
+modelsummary(
+  list("Coef" = ejercicio2),
+  title = "Tabla 3: Regresion controlando mas controles",
+  stars     = TRUE,
+  statistic = "std.error",
+  fmt       = 3,
+  coef_rename = c(
+    "jtpa_training" = "Recibio entrenamiento",
+    "sex" = "Sexo",
+    "secund_compl" = "Secundario completo",
+    "black" = "Afroamericano",
+    "hispanic" = "Hispano",
+    "married" = "Casado",
+    "wkless13" = "Sin trabajo en las ultimas 13 semanas",
+    "age2225" = "Entre 22 y 25 años",
+    "age2629" = "Entre 26 y 29 años",
+    "age3035" = "Enter 30 y 35 años",
+    "age3644" = "Entre 35 y 44 años"),
+  gof_map = c("nobs", "adj.r.squared"))
+
+
 
 #Endogeneidad de jtpa_training
 #Es endogena si Cov(jtpa_training;error)≠0
@@ -193,7 +239,7 @@ ejercicio2m <- lm(log_ingreso ~ jtpa_training + sex + jtpa_training*sex + secund
                   + hispanic + married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_mujeres)
 summary(ejercicio2m)
 
-linearHypothesis(ejercicio2, "jtpa_training:sex = 0")
+linearHypothesis(ejercicio2m, "jtpa_training:sex = 0")
 
 
 
@@ -224,9 +270,11 @@ ivreg(log_ingreso ~ jtpa_training + secund_compl + black + hispanic +
         jtpa_offer + secund_compl + black + hispanic + 
         married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_hombres)
 
+
+
+
 jtpa_3 <- jtpa_tp %>% 
   filter(sex == 1)
-
 
 #Usando ingreso en dolares (Como utiliza el paper)
 ivreg(ingreso ~ jtpa_training + secund_compl + black + hispanic + 
