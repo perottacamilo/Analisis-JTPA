@@ -265,3 +265,41 @@ ivreg(log_ingresos ~ jtpa_training + secund_compl + black + hispanic +
         married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
         jtpa_offer + secund_compl + black + hispanic + 
         married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_mujeres)
+
+
+
+variables_balance_1 <- c("secund_compl", "black", "hispanic",
+                       "married", "wkless13", "age2225", "age2629", "age3035", "age3644", "age4554")
+
+
+resultados_ttest <- data.frame(
+  Variable = character(), 
+  Media_Control = numeric(), 
+  Media_Tratado = numeric(), 
+  Diferencia = numeric(), 
+  p_valor = numeric(), 
+  stringsAsFactors = FALSE 
+)
+
+for (var in variables_balance_1) {
+  x_control <- jtpa_tp[[var]][jtpa_tp$jtpa_offer == 0] #va extranyendo observaciones del grupo control 
+  x_tratado <- jtpa_tp[[var]][jtpa_tp$jtpa_offer == 1] #va extranyendo observaciones del grupo tratamiento
+  
+  # Removemos NA 
+  x_control <- x_control[!is.na(x_control)] 
+  x_tratado <- x_tratado[!is.na(x_tratado)] 
+  
+  test <- t.test(x_control, x_tratado) #acá hace el test que planteamos arriba
+  
+  resultados_ttest <- rbind(resultados_ttest, data.frame( 
+    Variable = var, 
+    Media_Control = round(mean(x_control), 3), #acá le pedimos la informacion que queremos de controles 
+    Media_Tratado = round(mean(x_tratado), 3), #y tratados, ese ,3 es que le pedimos que redondee a 3 decimales 
+    Diferencia = round(mean(x_tratado) - mean(x_control), 3), #aca calcula diferencia de medias 
+    p_valor = round(test$p.value, 3) 
+  ))
+  
+}
+
+cat("\n") 
+print(resultados_ttest) #aca te imprime tipo tabla de resultados, la diferencia de medias y el p-valor.
