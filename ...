@@ -15,6 +15,7 @@ library(modelsummary) # Formatos más visibles de regresiónes
 library(AER)
 library(lmtest)
 
+#Agregar la variable AFDC para las regresiones de las mujeres
 
 rm(list = ls())
 
