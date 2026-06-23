@@ -1,26 +1,13 @@
-library(tidyverse)    # Para el manejo de variables
-library(ggplot2)      # Está incluído en tidyverse (para hacer gráficos)
-library(dplyr)        # Está incluído en tidyverse (para el manejo de variables)
-library(haven)        # Para importar archivos de tipo .dta o .sav  
-library(readxl)       # Para importar archivos de excel
-library(writexl)      # Para exportar archivos de excel
-library(skimr)        # Genera resúmenes estadísticos más completos que
-library(janitor)      # Limpieza de nombre de ariables
-library(broom)        # Convierte resultados de modelos en data frames ordenados.
-library(sandwich)     # Genera errores estandar
-library(lmtest)       # Sirve para tests estadísticos para modelos lineales (heter., autocorr., etc.).
-library(modelsummary) # Formatos más visibles de regresiónes
-
-#Clase 1
+library(haven)      
 library(AER)
-library(lmtest)
-
-#Agregar la variable AFDC para las regresiones de las mujeres
+library(modelsummary) 
+library(tidyverse)    
 
 rm(list = ls())
 
-#setwd("D:/Users/Camilo/Documents/.-Camilo-/UBA/Econometria I/TPs") 
-setwd("C:/Users/tomas/OneDrive/Documentos/Econometria/TPs/TP2")
+#Elegir direccion donde se encuentre el archivo "jtpa.dta"
+setwd("") 
+
 jtpa_tp <- read_dta("jtpa.dta")
 
 jtpa_tp <- jtpa_tp %>% 
@@ -41,35 +28,86 @@ jtpa_2 <- jtpa_tp %>%
 #Modelo Lin-Lin
 ejercicio1 <- lm(ingresos ~ jtpa_training, data = jtpa_tp)
 summary(ejercicio1)
-ejercio1_m <- lm(ingresos ~ jtpa_training, data = subset(jtpa_tp, sex == 1))
-ejercio1_h <- lm(ingresos ~ jtpa_training, data = subset(jtpa_tp, sex == 0))
+
+ejercicio1_m <- lm(ingresos ~ jtpa_training, data = subset(jtpa_tp, sex == 0))
+
+ejercicio1_h <- lm(ingresos ~ jtpa_training, data = subset(jtpa_tp, sex == 1))
 
 #Tabla para el ejercicio 1
 modelsummary(
   list("Coef" = ejercicio1),
-  title = "Tabla 1: Regresión del ingreso sobre capacitación",
+  title = "Tabla 1.1: Regresión del ingreso sobre capacitación",
   stars     = TRUE,
   statistic = "std.error",
   fmt       = 3,
   coef_rename = c(
     "jtpa_training" = "Recibio entrenamiento"),
   gof_map = c("nobs", "adj.r.squared"))
+
+modelsummary(
+  list("Coef" = ejercicio1_h),
+  title = "Tabla 2: Regresión del ingreso sobre capacitación (Hombres)",
+  stars     = TRUE,
+  statistic = "std.error",
+  fmt       = 3,
+  coef_rename = c(
+    "jtpa_training" = "Recibio entrenamiento"),
+  gof_map = c("nobs", "adj.r.squared"))
+
+modelsummary(
+  list("Coef" = ejercicio1_m),
+  title = "Tabla 3: Regresión del ingreso sobre capacitación (Mujeres)",
+  stars     = TRUE,
+  statistic = "std.error",
+  fmt       = 3,
+  coef_rename = c(
+    "jtpa_training" = "Recibio entrenamiento"),
+  gof_map = c("nobs", "adj.r.squared"))
+
+
+
 #falta lo mismo para hombres y mujeres
 
 #Modelo Log-Lin
-ejercicio1.1 <- lm(log_ingresos ~ jtpa_training, data = jtpa_2)
+ejercicio1.1 <- lm(log_ingresos ~ jtpa_training, data = subset(jtpa_2))
 summary(ejercicio1.1)
+
+ejercicio1.1_m <- lm(log_ingresos ~ jtpa_training, data = subset(jtpa_2, sex == 0))
+
+ejercicio1.1_h <- lm(log_ingresos ~ jtpa_training, data = subset(jtpa_2, sex == 1))
+
 
 #Tabla para el ejercicio 1
 modelsummary(
   list("Coef" = ejercicio1.1),
-  title = "Tabla 2: Regresión controlando por entrenamiento con ingreso en logaritmos",
+  title = "Tabla 1.1: Regresión logaritmica sobre capacitación",
   stars     = TRUE,
   statistic = "std.error",
   fmt       = 3,
   coef_rename = c(
     "jtpa_training" = "Recibió entrenamiento"),
   gof_map = c("nobs", "adj.r.squared"))
+
+modelsummary(
+  list("Coef" = ejercicio1.1_m),
+  title = "Tabla 5: Regresión logaritmica sobre capacitación (Mujeres)",
+  stars     = TRUE,
+  statistic = "std.error",
+  fmt       = 3,
+  coef_rename = c(
+    "jtpa_training" = "Recibió entrenamiento"),
+  gof_map = c("nobs", "adj.r.squared"))
+
+modelsummary(
+  list("Coef" = ejercicio1.1_h),
+  title = "Tabla 6: Regresión logaritmica sobre capacitación (Hombres)",
+  stars     = TRUE,
+  statistic = "std.error",
+  fmt       = 3,
+  coef_rename = c(
+    "jtpa_training" = "Recibió entrenamiento"),
+  gof_map = c("nobs", "adj.r.squared"))
+
 
 
 #Punto 2
@@ -88,7 +126,7 @@ linearHypothesis(ejercicio2, "jtpa_training:sex = 0")
 #Tabla para el ejercicio 2
 modelsummary(
   list("Coef" = ejercicio2),
-  title = "Tabla 3: regresión incluyendo variables de control",
+  title = "Tabla 7: regresión incluyendo variables de control",
   stars     = TRUE,
   statistic = "std.error",
   fmt       = 3,
@@ -127,37 +165,64 @@ modelsummary(
 #Exogeneidad
 #Ver que la variable instrumental jtpa_offer no esta relacionada con los errores
 #Una manera de mostrarlo es ver que la oferta al programa fue de manera aleatoria
-table(jtpa_2$jtpa_offer, jtpa_2$jtpa_training)
-cor(jtpa_2$jtpa_offer, jtpa_2$jtpa_training)#relevancia
 
 
-balance <- data.frame(
-  Variable = c("secund_completo", "black", "hispanic",
-               "married", "wkless13", "sex"),
-  No_asignado = round(c(
-    mean(jtpa_2$secund_compl[jtpa_2$jtpa_offer == 0]),
-    mean(jtpa_2$black[jtpa_2$jtpa_offer == 0]),
-    mean(jtpa_2$hispanic[jtpa_2$jtpa_offer == 0]),
-    mean(jtpa_2$married[jtpa_2$jtpa_offer == 0]),
-    mean(jtpa_2$wkless13[jtpa_2$jtpa_offer == 0]),
-    mean(jtpa_2$sex[jtpa_2$jtpa_offer == 0])
-  ), 3),
-  Asignado = round(c(
-    mean(jtpa_2$secund_compl[jtpa_2$jtpa_offer == 1]),
-    mean(jtpa_2$black[jtpa_2$jtpa_offer == 1]),
-    mean(jtpa_2$hispanic[jtpa_2$jtpa_offer == 1]),
-    mean(jtpa_2$married[jtpa_2$jtpa_offer == 1]),
-    mean(jtpa_2$wkless13[jtpa_2$jtpa_offer == 1]),
-    mean(jtpa_2$sex[jtpa_2$jtpa_offer == 1])
-  ), 3)
+#Prueba Exogeneidad (Ignorabiilida)
+variables_balance_1 <- c("secund_compl", "black", "hispanic",
+                         "married", "wkless13", "age2225", "age2629", "age3035", "age3644", "age4554")
+
+
+resultados_ttest <- data.frame(
+  Variable = character(), 
+  Media_Control = numeric(), 
+  Media_Tratado = numeric(), 
+  Diferencia = numeric(), 
+  p_valor = numeric(), 
+  stringsAsFactors = FALSE 
 )
-print(balance)#exogeneidad, muestra que jtpa_offer fue aleatoria
+
+for (var in variables_balance_1) {
+  x_control <- jtpa_tp[[var]][jtpa_tp$jtpa_offer == 0] 
+  x_tratado <- jtpa_tp[[var]][jtpa_tp$jtpa_offer == 1] 
+  
+  
+  x_control <- x_control[!is.na(x_control)] 
+  x_tratado <- x_tratado[!is.na(x_tratado)] 
+  
+  test <- t.test(x_control, x_tratado)
+  
+  resultados_ttest <- rbind(resultados_ttest, data.frame( 
+    Variable = var, 
+    Media_Control = round(mean(x_control), 3), 
+    Media_Tratado = round(mean(x_tratado), 3), 
+    Diferencia = round(mean(x_tratado) - mean(x_control), 3),  
+    p_valor = round(test$p.value, 3) 
+  ))
+  
+}
+
+cat("\n") 
+print(resultados_ttest) 
+
+#Cuadro exportable de exogeneidad
+datos_balance <- jtpa_tp[, c(variables_balance_1, "jtpa_offer")]
+
+datasummary_balance(
+  ~ jtpa_offer,                  
+  data = datos_balance,          
+  dinm_statistic = "p.value",    
+  title = "Test de Balance de la Muestra",
+  fmt = 3,
+  output = "balance_exportado.docx" 
+)
 
 #Ver si la VI es muy significativa en jtpa_training
-relevancia <- lm(jtpa_training ~ jtpa_offer + secund_compl + black + hispanic + 
-                   married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_2)
-summary(relevancia)
-waldtest(relevancia, . ~ . - jtpa_offer)
+#Primera Etapa
+primera_etapa <- lm(jtpa_training ~ jtpa_offer + married + black + hispanic + secund_compl + 
+                      wkless13 + age2225 + age2629 + age3035 +
+                      age3644 + age4554, data = jtpa_tp)
+summary(primera_etapa)
+waldtest(primera_etapa, . ~ . - jtpa_offer)
 
 #Forma reducida
 forma_red <- lm(log_ingresos ~ jtpa_offer + secund_compl + black + hispanic + 
@@ -167,171 +232,107 @@ alfa <- forma_red$coefficients["jtpa_offer"]
 
 print(alfa)
 
-#Primera Etapa
-primera_etapa <- lm(jtpa_training ~ jtpa_offer + married + black + hispanic + secund_compl + 
-                      wkless13 + age2225 + age2629 + age3035 +
-                      age3644 + age4554, data = jtpa_2)
-summary(primera_etapa)
-
+#De la primera etapa
 gamma <- primera_etapa$coefficients["jtpa_offer"]
 print(gamma)
 
+#Coeficiente de Variables Instrumetales
 alfa/gamma 
 
-#Coeficiente β1 VI, que reemplazaria al β1 MCO que es sesgado
-#Se llega al mismo resultado utilizando
 
+#Relevancia por sexos
+relevancia_h <- lm(jtpa_training ~ jtpa_offer + secund_compl + black + hispanic + married + wkless13 + age2225
+                   + age2629 + age3035 + age3644 + age4554, subset(jtpa_tp, sex == 1))
+summary(relevancia_h)
+
+relevancia_m <- lm(jtpa_training ~ jtpa_offer + secund_compl + black + hispanic + married + wkless13 + age2225
+                   + age2629 + age3035 + age3644 + age4554 + afdc, subset(jtpa_tp, sex == 0))
+summary(relevancia_m)
+
+
+
+#Regresion usando la VI
 iv <- ivreg(log_ingresos ~ jtpa_training + secund_compl + black + hispanic + 
-        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
-        jtpa_offer + secund_compl + black + hispanic + 
-        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_2)
-iv$coef["jtpa_training"]
+              married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
+              jtpa_offer + secund_compl + black + hispanic + 
+              married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_2)
+
 
 #Separando por sexos
+iv_m <- ivreg(log_ingresos ~ jtpa_training + secund_compl + black + hispanic + 
+              married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 + afdc| 
+              jtpa_offer + secund_compl + black + hispanic + 
+              married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 + afdc, data = subset(jtpa_2, sex == 1))
 
-jtpa_hombres <- jtpa_2 %>% 
-  filter(sex == 1)
+iv_h <- ivreg(log_ingresos ~ jtpa_training + secund_compl + black + hispanic + 
+                  married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
+                  jtpa_offer + secund_compl + black + hispanic + 
+                  married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = subset(jtpa_2, sex == 0))
 
-jtpa_mujeres <- jtpa_2 %>% 
-  filter(sex == 0)
+#Tablas ivreg
+modelsummary(
+  list("Coef" = iv),
+  title = "Tabla 8: Regresión usando la Variable Instrumental",
+  stars     = TRUE,
+  statistic = "std.error",
+  fmt       = 3,
+  coef_rename = c(
+    "jtpa_training" = "Retorno a la capacitación",
+    "sex" = "Sexo",
+    "jtpa_training:sex" = "Diferencia entre el retorno a la capacitación por sexo",
+    "secund_compl" = "Secundario completo",
+    "black" = "Afroamericano",
+    "hispanic" = "Hispano",
+    "married" = "Casado",
+    "wkless13" = "Trabajó menos de 13 semanas el último año",
+    "age2225" = "Entre 22 y 25 años",
+    "age2629" = "Entre 26 y 29 años",
+    "age3035" = "Enter 30 y 35 años",
+    "age3644" = "Entre 35 y 44 años",
+    "age4554" = "Entre 45 y 54 años"),
+  gof_map = c("nobs", "adj.r.squared"))
 
-#Punto 1
-#Hombres
-ejercicio1h <- lm(ingresos ~ jtpa_training, data = jtpa_hombres)
-summary(ejercicio1h)
+modelsummary(
+  list("Coef" = iv_h),
+  title = "Tabla 9: Regresión usando la Variable Instrumental (Hombres)",
+  stars     = TRUE,
+  statistic = "std.error",
+  fmt       = 3,
+  coef_rename = c(
+    "jtpa_training" = "Retorno a la capacitación",
+    "sex" = "Sexo",
+    "jtpa_training:sex" = "Diferencia entre el retorno a la capacitación por sexo",
+    "secund_compl" = "Secundario completo",
+    "black" = "Afroamericano",
+    "hispanic" = "Hispano",
+    "married" = "Casado",
+    "wkless13" = "Trabajó menos de 13 semanas el último año",
+    "age2225" = "Entre 22 y 25 años",
+    "age2629" = "Entre 26 y 29 años",
+    "age3035" = "Enter 30 y 35 años",
+    "age3644" = "Entre 35 y 44 años",
+    "age4554" = "Entre 45 y 54 años"),
+  gof_map = c("nobs", "adj.r.squared"))
 
-#Modelo Log-Lin
-ejercicio1.1h <- lm(log_ingresos ~ jtpa_training, data = jtpa_hombres)
-summary(ejercicio1.1h)
-
-
-#Mujeres
-ejercicio1m <- lm(ingresos ~ jtpa_training, data = jtpa_mujeres)
-summary(ejercicio1m)
-
-#Modelo Log-Lin
-ejercicio1.1m <- lm(log_ingresos ~ jtpa_training, data = jtpa_mujeres)
-summary(ejercicio1.1m)
-
-#Punto 4
-#Hombres
-#Ver si alguna variable de la regresión (distinta de jtpa_training) afecta a la VI
-exogeneidad3h <- lm(jtpa_offer ~ secund_compl + black + hispanic + married + sex + wkless13, data = jtpa_hombres)
-summary(exogeneidad3h)
-
-#Ver si la VI es muy significativa en jtpa_training
-relevanciah <- lm(jtpa_training ~ jtpa_offer, data = jtpa_hombres)
-summary(relevanciah)
-
-
-#Mujeres
-#Ver si alguna variable de la regresión (distinta de jtpa_training) afecta a la VI
-exogeneidad3m <- lm(jtpa_offer ~ secund_compl + black + hispanic + married + sex + wkless13, data = jtpa_mujeres)
-summary(exogeneidad3m)
-
-#Ver si la VI es muy significativa en jtpa_training
-relevanciam <- lm(jtpa_training ~ jtpa_offer, data = jtpa_mujeres)
-summary(relevanciam)
-
-
-#Hombres
-ivreg(log_ingresos ~ jtpa_training + secund_compl + black + hispanic + 
-        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
-        jtpa_offer + secund_compl + black + hispanic + 
-        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_hombres)
-
-
-
-jtpa_3 <- jtpa_tp %>% 
-  filter(sex == 1)
-
-#Usando ingreso en dolares (Como utiliza el paper)
-ivreg(ingresos ~ jtpa_training + secund_compl + black + hispanic + 
-        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
-        jtpa_offer + secund_compl + black + hispanic + 
-        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_hombres)
-
-#Incluye personas con ingreso=0 (Mas parecido al paper)
-ivreg(ingresos ~ jtpa_training + secund_compl + black + hispanic + 
-        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
-        jtpa_offer + secund_compl + black + hispanic + 
-        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_3)
-
-
-
-
-
-#Mujeres
-ivreg(log_ingresos ~ jtpa_training + secund_compl + black + hispanic + 
-        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554 | 
-        jtpa_offer + secund_compl + black + hispanic + 
-        married + wkless13 + age2225 + age2629 + age3035 + age3644 + age4554, data = jtpa_mujeres)
-
-
-
-variables_balance_1 <- c("secund_compl", "black", "hispanic",
-                       "married", "wkless13", "age2225", "age2629", "age3035", "age3644", "age4554")
-
-
-resultados_ttest <- data.frame(
-  Variable = character(), 
-  Media_Control = numeric(), 
-  Media_Tratado = numeric(), 
-  Diferencia = numeric(), 
-  p_valor = numeric(), 
-  stringsAsFactors = FALSE 
-)
-
-for (var in variables_balance_1) {
-  x_control <- jtpa_tp[[var]][jtpa_tp$jtpa_offer == 0] #va extranyendo observaciones del grupo control 
-  x_tratado <- jtpa_tp[[var]][jtpa_tp$jtpa_offer == 1] #va extranyendo observaciones del grupo tratamiento
-  
-  # Removemos NA 
-  x_control <- x_control[!is.na(x_control)] 
-  x_tratado <- x_tratado[!is.na(x_tratado)] 
-  
-  test <- t.test(x_control, x_tratado) #acá hace el test que planteamos arriba
-  
-  resultados_ttest <- rbind(resultados_ttest, data.frame( 
-    Variable = var, 
-    Media_Control = round(mean(x_control), 3), #acá le pedimos la informacion que queremos de controles 
-    Media_Tratado = round(mean(x_tratado), 3), #y tratados, ese ,3 es que le pedimos que redondee a 3 decimales 
-    Diferencia = round(mean(x_tratado) - mean(x_control), 3), #aca calcula diferencia de medias 
-    p_valor = round(test$p.value, 3) 
-  ))
-  
-}
-
-cat("\n") 
-print(resultados_ttest) #aca te imprime tipo tabla de resultados, la diferencia de medias y el p-valor.
-variables_balance_1 <- c("secund_compl", "black", "hispanic",
-                       "married", "wkless13", "age2225", "age2629", "age3035", "age3644", "age4554")
-
-resultados_ttest <- data.frame(
-  Variable = character(), 
-  Media_Control = numeric(), 
-  Media_Tratado = numeric(), 
-  Diferencia = numeric(), 
-  p_valor = numeric(), 
-  stringsAsFactors = FALSE 
-)
-
-for (var in variables_balance_1) {
-  x_control <- jtpa_tp[[var]][jtpa_tp$jtpa_offer == 0]  
-  x_tratado <- jtpa_tp[[var]][jtpa_tp$jtpa_offer == 1] 
-  
-  x_control <- x_control[!is.na(x_control)] 
-  x_tratado <- x_tratado[!is.na(x_tratado)] 
-  
-  test <- t.test(x_control, x_tratado) 
-  
-  resultados_ttest <- rbind(resultados_ttest, data.frame( 
-    Variable = var, 
-    Media_Control = round(mean(x_control), 3),  
-    Media_Tratado = round(mean(x_tratado), 3), 
-    Diferencia = round(mean(x_tratado) - mean(x_control), 3), 
-    p_valor = round(test$p.value, 3) 
-  ))}
-
-cat("\n") 
-print(resultados_ttest)
+modelsummary(
+  list("Coef" = iv_m),
+  title = "Tabla 10: Regresión usando la Variable Instrumental (Mujeres)",
+  stars     = TRUE,
+  statistic = "std.error",
+  fmt       = 3,
+  coef_rename = c(
+    "jtpa_training" = "Retorno a la capacitación",
+    "sex" = "Sexo",
+    "jtpa_training:sex" = "Diferencia entre el retorno a la capacitación por sexo",
+    "secund_compl" = "Secundario completo",
+    "black" = "Afroamericano",
+    "hispanic" = "Hispano",
+    "married" = "Casado",
+    "wkless13" = "Trabajó menos de 13 semanas el último año",
+    "age2225" = "Entre 22 y 25 años",
+    "age2629" = "Entre 26 y 29 años",
+    "age3035" = "Enter 30 y 35 años",
+    "age3644" = "Entre 35 y 44 años",
+    "age4554" = "Entre 45 y 54 años",
+  "afdc" = "AFDC"),
+  gof_map = c("nobs", "adj.r.squared"))
