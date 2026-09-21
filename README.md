@@ -1,4 +1,5 @@
-# Trabajo JTPA
+# Trabajo grupal JTPA
+Matias Avella - Thomas Hannon - Ignacio Keena - Camilo Perotta
 
 ## JTPA
 JTPA fue un programa lanzado en Estado Unidos en 1982 para entrenar y ayudar laboralmente a personas jovenes y adultos que tenian dificultad para incersarse en el mercado laboral.
