@@ -7,7 +7,7 @@ JTPA fue un programa lanzado en Estado Unidos en 1982 para entrenar y ayudar lab
 El trabajo esta enfocado en el analisis econometrico del impacto del programa con la utilizacion de regresiones, tablas y variables instrumentales.
 
 ## Herramientos
-**Lenguaje:** RStudio
+**Lenguaje:** R
 
 **Base de datos:** JTPA
 
