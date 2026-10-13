@@ -1,3 +1,6 @@
+# PAQUETES
+# install.packages(c("haven", "AER", "modelsummary", "tidyverse"))
+
 library(haven)      
 library(AER)
 library(modelsummary) 
